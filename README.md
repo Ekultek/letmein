@@ -1,3 +1,7 @@
+# Disclaimer
+
+This password manager is a work in progress, it is nowhere near secure amd should never be used in a production server (or even a testing server). I've released it as a learning tool for myself, and for review from others. Use a different password manager.
+
 # letmein
 
 Letmein is a simple easy to use password manager that that uses `AES-256` encryption to store your password in a SQLite database file with a single master password. The master password is stored in it's own seperate `.key` file under the projects home directory (`~/.letmein`), and is hashed using two million rounds of Pythons builtin `PBKDF2-HMAC-SHA-256` implementation.
