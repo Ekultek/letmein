@@ -8,6 +8,10 @@ from lib.settings import sha256_rounds
 
 class AESCipher(object):
 
+    """
+    implmenetation of the AES Cipher using PyCrypto
+    """
+
     def __init__(self, key):
         self.key = sha256_rounds(key)
         self.block_size = AES.block_size

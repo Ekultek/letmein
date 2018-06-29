@@ -1,89 +1,153 @@
 # letmein
 
-Letmein is a light weight easy to use password manager that stores your passwords with AES-256 encryption into a sqlite3 database file. The database file itself when looked at looks something like this:
+Letmein is a simple easy to use password manager that that uses `AES-256` encryption to store your password in a SQLite database file with a single master password. The master password is stored in it's own seperate `.key` file under the projects home directory (`~/.letmein`), and is hashed using two million rounds of Pythons builtin `PBKDF2-HMAC-SHA-256` implementation.
 
-<img width="1581" alt="databasefile" src="https://user-images.githubusercontent.com/14183473/42097397-abc213fa-7b7d-11e8-92d4-19f3f9848892.png">
+# Why should I use this?
 
-In order to decrypt the AES ciphers you will need the hashed master password that is stored in `~/.letmein/.key`. An example of the hashed password looks like this:
+You shouldn't. The key file is stored in your home directory under `.letmein`. If someone gets access to that key file it is possible for them to change the hash to match whatever they want and decrypt your data into it's plaintext equivalent, a smarter idea would be to use a password manager that has been proven to work. However, keep in mind that if someone is able to get into your system, you have much bigger problems then getting your passwords decrypted.
 
+# Encryption information and precautions
+
+#### Encryption used:
+
+- All passwords that are stored in the database use the `AES-256` cipher. The cipher key is the master password stored in the home directory. An example of what the information looks like while sitting in the database can be found below:
+<img width="1574" alt="passwordsstoredandencrypted" src="https://user-images.githubusercontent.com/14183473/42105246-4a668268-7b95-11e8-813c-38758638e61a.png">
+
+- The master password is encrypted using Pythons implementation of the `PBKDF2-HMAC-SHA-256` hashing algorithm. The password goes through two million rounds before it is stored and takes around 1.9 seconds to complete the rotation. An example of what the end result looks like can be found below:
 ```bash
-���M���c�3�^(rtmSQYNPHDCtbZYuyUXn1g8mRmfaZkjEk08nI_L4G214=�l���4�A�E�M�{:44
+��' }]J��3�QjT8ZDmmxuwaLKeCP-GjbW05R-V-iLsF2UAS7jdi34NHY=�����[�)��ܦ�:44
 ```
 
-The hashed master password is sent through two million rounds of Pythons built-in `PBKDF2-HMAC-SHA-256` implementation, it will take around 1.9 seconds in order for hashing to complete:
+#### Precautions taken
 
-```python
-def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
-    obj = hashlib.pbkdf2_hmac
-    return obj("sha256", raw, salt, rounds)
-```
+- Every password is encrypted and irreversible without the master password.
+- If you fail to put in the correct master password three times, all the data and files in the home directory are removed.
+- Each removed file goes through three passes of random data filling, and then also goes through three passes of NULL byte filling. This makes the file practically impossible to restore (on a normal system).
+- Bruteforce is possible, but each encryption takes around 1.9 seconds to complete using a normal computer.
 
-You are given three chances to enter the password, if you are unable to enter the master password in three chances all data stored in the projects home directory (`~/.letmein`) is securely deleted by filling (3 passes) each file in the home directory with random bytes, and taking another pass with NULL bytes:
+# Example usage
 
-```python
-def secure_delete(path, random_fill=True, null_fill=True, passes=3):
-    with open(path, "wr") as data:
-        length = data.tell()
-        if random_fill:
-            for _ in xrange(passes):
-                data.seek(0)
-                data.write(os.urandom(length))
-        if null_fill:
-            for _ in xrange(passes):
-                data.seek(0)
-                data.write("\x00" * length)
-    os.remove(path)
-```
-
-The point if this project is to better understand how hashing works and how password managers work. This project is not complete and is not ready for use (I highly recommend you use a well known password manager over this one). It is being stored on Github for review access.
-
-# Example usage:
-
-Displaying all passwords currently stored in the database:
-
+Running without a command will drop you directly into the help menu:
 ```bash
-(letmein) TBG-a0216:letmein admin$ python letmein.py -S
-[09:12:52][PROMPT] enter your encryption key, 3 tries left: 
-[09:12:57][INFO] key accepted!
-[09:12:57][INFO] gathered 6 password(s) total
-[09:12:57][INFO] decrypting stored information
-------------------------------
-INFO: some 2random info                 STORED PASSWORD: this is a testing password1             
-INFO: some 7random info                 STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-------------------------------
-[09:13:09][WARNING] all output is displayed in plaintext
-(letmein) TBG-a0216:letmein admin$ 
+python letmein.py
+[12:44:39][FATAL] no arguments passed, dropping to help page
+usage: letmein.py [-h] [-p PASSWORD] [-i INFORMATION] [-S]
+                  [-s INFORMATION-STRING] [-R REGEX] [-W] [-u [INFO]]
+                  [--clean]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PASSWORD, -P PASSWORD, --password PASSWORD
+                        provide a plaintext password to store
+                        (*default=prompt)
+  -i INFORMATION, -I INFORMATION, --info INFORMATION
+                        provide information about the password to store
+                        alongside (*default=prompt)
+  -S, --show-all        display all stored passwords
+  -s INFORMATION-STRING, --show INFORMATION-STRING
+                        provided the information string stored alongside the
+                        password to show the stored password
+  -R REGEX, --regex REGEX
+                        provided a string that will be searched as a regular
+                        expression and pull all the passwords that match the
+                        given expression
+  -W, --store           store the provided password into the encrypted
+                        database
+  -u [INFO], --update [INFO]
+                        update an existing password by looking for the
+                        associated information string
+  --clean               erase everything in the home folder
 ```
 
-Storing a password:
-
+If there is not password stored in the key file, you will be prompted to create a new one:
 ```bash
-(letmein) TBG-a0216:letmein admin$ python letmein.py -W
-[09:14:45][PROMPT] enter your encryption key, 3 tries left: 
-[09:14:50][INFO] key accepted!
-[09:14:50][PROMPT] enter the information string associated with this password: this is a password storing teset
-[09:15:01][PROMPT] enter the password to store: 
-[09:15:08][INFO] password stored successfully
-(letmein) TBG-a0216:letmein admin$ 
+python letmein.py -W
+[12:45:27][PROMPT] you have not provided an encryption key, please provide one: 
+[12:45:33][INFO] key has been stored successfully and securely. you will be given three attempts to successfully enter your stored key at each login, after three failed attempts all data in the programs home directory will be securely erased. you will need to re-run the application now.
 ```
 
-Displaying all passwords that match a regular expression:
-
+To store a password you need to provide the `-W/--store` flag, you will be prompted for the information to identify the password along with the password itself:
 ```bash
-(letmein) TBG-a0216:letmein admin$ python letmein.py -R test
-[09:15:39][PROMPT] enter your encryption key, 3 tries left: 
-[09:15:43][INFO] key accepted!
-[09:15:43][INFO] a total of 4 item(s) matched your search
+python letmein.py -W
+[12:47:26][PROMPT] enter your encryption key, 3 tries left: 
+[12:47:30][INFO] key accepted!
+[12:47:30][PROMPT] enter the information string associated with this password: ekultek/password
+[12:47:38][PROMPT] enter the password to store: 
+[12:47:44][INFO] password stored successfully
+```
+
+To skip the prompts you can provide either the `-i/-I/--info` flag to skip the information prompt:
+```bash
+python letmein.py -W -I ekultek/2ndpassword
+[12:50:09][PROMPT] enter your encryption key, 3 tries left: 
+[12:50:14][INFO] key accepted!
+[12:50:14][PROMPT] enter the password to store: 
+[12:50:22][INFO] password stored successfully
+```
+
+OR you can provide the `-p/-P/--password` flag to skip the password prompt:
+```bash
+python letmein.py -W -P password0988
+[12:51:13][PROMPT] enter your encryption key, 3 tries left: 
+[12:51:18][INFO] key accepted!
+[12:51:18][PROMPT] enter the information string associated with this password: ekultek/3rdpassword
+[12:51:27][INFO] password stored successfully
+```
+
+OR you can skip both and provide each at runtime:
+```bash
+python letmein.py -W -I ekultek/4thpassword -P password67463
+[12:52:02][PROMPT] enter your encryption key, 3 tries left: 
+[12:52:06][INFO] key accepted!
+[12:52:08][INFO] password stored successfully
+```
+
+To show all stored passwords plaintext, you can provide the `-S/--show-all` flag:
+```bash
+python letmein.py -S
+[12:53:26][PROMPT] enter your encryption key, 3 tries left: 
+[12:53:29][INFO] key accepted!
+[12:53:29][INFO] gathered 4 password(s) total
+[12:53:29][INFO] decrypting stored information
 ------------------------------
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
-INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: ekultek/password                  STORED PASSWORD: password123                             
+INFO: ekultek/2ndpassword               STORED PASSWORD: password54321                           
+INFO: ekultek/3rdpassword               STORED PASSWORD: password0988                            
+INFO: ekultek/4thpassword               STORED PASSWORD: password67463                           
 ------------------------------
-[09:15:51][WARNING] all output is displayed in plaintext
-(letmein) TBG-a0216:letmein admin$ 
+[12:53:37][WARNING] all output is displayed in plaintext
+```
+
+You can also search a password by regular expression using the `-R/--regex` flag, the regex will search the information strings associated with each password:
+```bash
+python letmein.py -R th
+[12:54:57][PROMPT] enter your encryption key, 3 tries left: 
+[12:55:02][INFO] key accepted!
+[12:55:02][INFO] a total of 1 item(s) matched your search
+------------------------------
+INFO: ekultek/4thpassword               STORED PASSWORD: password67463                           
+------------------------------
+[12:55:04][WARNING] all output is displayed in plaintext
+```
+
+To update an existing password you can pass the `-u/--update` flag along with a string that will match the information associated with the password:
+```bash
+python letmein.py -u th
+[12:57:51][PROMPT] enter your encryption key, 3 tries left: 
+[12:57:55][INFO] key accepted!
+[12:57:55][INFO] 1 possible passwords found to edit
+[0] ekultek/4thupdatedpassword
+[12:57:55][PROMPT] choose an item to edit[0-0]: 0
+[12:57:57][PROMPT] enter the new information for the update: ekultek/4thpasswordupdated
+[12:58:04][PROMPT] enter the new password to update: 
+[12:58:11][INFO] password updated successfully
+
+python letmein.py -R 4th
+[12:59:01][PROMPT] enter your encryption key, 3 tries left: 
+[12:59:05][INFO] key accepted!
+[12:59:05][INFO] a total of 1 item(s) matched your search
+------------------------------
+INFO: ekultek/4thpasswordupdated        STORED PASSWORD: password64756382673                     
+------------------------------
+[12:59:07][WARNING] all output is displayed in plaintext
 ```

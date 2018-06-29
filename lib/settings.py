@@ -4,10 +4,13 @@ import string
 import random
 import hashlib
 
-from Crypto import Random
-
 import encryption.aes_encryption
-from lib.output import info, warning, error, fatal, prompt
+from lib.output import (
+    info,
+    warning,
+    fatal,
+    prompt
+)
 
 try:
     xrange
@@ -21,11 +24,17 @@ KEY_FILES_DIR = "{}/.data".format(HOME)
 
 
 def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
+    """
+    encrypt a string using 2 million rounds of PBKDF2-HMAC-SHA-256
+    """
     obj = hashlib.pbkdf2_hmac
     return obj("sha256", raw, salt, rounds)
 
 
 def secure_delete(path, random_fill=True, null_fill=True, passes=3):
+    """
+    securely delete a file by passing it through both random and null filling
+    """
     files = os.listdir(path)
     for i, f in enumerate(files):
         files[i] = "{}/{}".format(path, f)
@@ -44,6 +53,11 @@ def secure_delete(path, random_fill=True, null_fill=True, passes=3):
 
 
 def store_key(path):
+    """
+    store the encrypted key or be prompted to create one
+    """
+    if not os.path.exists(path):
+        os.mkdir(path)
     key_file = "{}/.key".format(path)
     if not os.path.exists(key_file):
         provided_key = prompt(
@@ -57,7 +71,7 @@ def store_key(path):
         info(
             "key has been stored successfully and securely. you will be given three attempts to successfully "
             "enter your stored key at each login, after three failed attempts all data in the programs home "
-            "directory will be securely erased"
+            "directory will be securely erased. you will need to re-run the application now."
         )
         exit(-1)
     else:
@@ -70,6 +84,9 @@ def store_key(path):
 
 
 def compare(stored):
+    """
+    compare the provided key hash with the stored key hash
+    """
     tries = 3
 
     while True:
@@ -92,6 +109,9 @@ def compare(stored):
 
 
 def display_formatted_list_output(data, key):
+    """
+    display decrypted data in plaintext
+    """
     separator = "-" * 30
 
     print(separator)
@@ -107,6 +127,9 @@ def display_formatted_list_output(data, key):
 
 
 def random_string(length=5, hard=False):
+    """
+    create a random string
+    """
     if not hard:
         acceptable = string.ascii_letters
     else:

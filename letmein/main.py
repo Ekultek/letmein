@@ -1,8 +1,27 @@
 from lib.cmd import LetMeInParser
 from encryption.aes_encryption import AESCipher
-from lib.output import warning, info, prompt, error, fatal
-from lib.settings import store_key, MAIN_DIR, compare, secure_delete, DATABASE_FILE, display_formatted_list_output
-from sql.sql import create_connection, select_all_data, create_new_row, display_by_regex, update_existing_column
+from lib.output import (
+    warning,
+    info,
+    prompt,
+    error,
+    fatal
+)
+from lib.settings import (
+    store_key,
+    MAIN_DIR,
+    compare,
+    secure_delete,
+    DATABASE_FILE,
+    display_formatted_list_output
+)
+from sql.sql import (
+    create_connection,
+    select_all_data,
+    create_new_row,
+    display_by_regex,
+    update_existing_column
+)
 
 
 def main():
@@ -65,10 +84,14 @@ def main():
                 if int(choice) in range(len(apparent_possible_passwords)):
                     information = prompt("enter the new information for the update: ")
                     password = prompt("enter the new password to update: ", hide=True)
-                    update_existing_column(
+                    result = update_existing_column(
                         conn, cursor, (information, AESCipher(stored_key).encrypt(password)),
                         apparent_possible_passwords[int(choice)]
                     )
+                    if result == "ok":
+                        info("password updated successfully")
+                    else:
+                        fatal("issue updating password: {}".format(result))
         elif opt.cleanHomeFolder:
             secure_delete(MAIN_DIR)
             info("all data has been deleted")
