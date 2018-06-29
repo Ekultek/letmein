@@ -27,8 +27,8 @@ class LetMeInParser(argparse.ArgumentParser):
                             help="provided a string that will be searched as a regular expression and pull "
                                  "all the passwords that match the given expression")
         parser.add_argument("-W", "--store", action="store_true", dest="storeProvidedPassword",
-                            help="store the provided password into the encrypted database")
-        parser.add_argument("-u", "--update", metavar="INFO", dest="updateExistingPassword", nargs="?",
+                            help="store a password in the database")
+        parser.add_argument("-u", "--update", metavar="INFO", dest="updateExistingPassword",
                             help="update an existing password by looking for the associated information string")
         parser.add_argument("--clean", action="store_true", dest="cleanHomeFolder",
                             help="erase everything in the home folder")
