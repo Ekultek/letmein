@@ -1,4 +1,8 @@
+import sys
+import time
 import argparse
+
+from lib.output import error
 
 
 class LetMeInParser(argparse.ArgumentParser):
@@ -24,6 +28,15 @@ class LetMeInParser(argparse.ArgumentParser):
                                  "all the passwords that match the given expression")
         parser.add_argument("-W", "--store", action="store_true", dest="storeProvidedPassword",
                             help="store the provided password into the encrypted database")
-        parser.add_argument("-u", "--update", metavar="INFO", dest="updateExistingPassword",
+        parser.add_argument("-u", "--update", metavar="INFO", dest="updateExistingPassword", nargs="?",
                             help="update an existing password by looking for the associated information string")
-        return parser.parse_args()
+        parser.add_argument("--clean", action="store_true", dest="cleanHomeFolder",
+                            help="erase everything in the home folder")
+        opts = parser.parse_args()
+
+        if len(sys.argv) == 1:
+            error("no arguments passed, dropping to help page")
+            time.sleep(3)
+            parser.print_help()
+            exit(1)
+        return opts

@@ -1,6 +1,10 @@
 import os
 import base64
+import string
+import random
 import hashlib
+
+from Crypto import Random
 
 import encryption.aes_encryption
 from lib.output import info, warning, error, fatal, prompt
@@ -13,6 +17,7 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
+KEY_FILES_DIR = "{}/.data".format(HOME)
 
 
 def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
@@ -21,17 +26,21 @@ def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$
 
 
 def secure_delete(path, random_fill=True, null_fill=True, passes=3):
-    with open(path, "wr") as data:
-        length = data.tell()
-        if random_fill:
-            for _ in xrange(passes):
-                data.seek(0)
-                data.write(os.urandom(length))
-        if null_fill:
-            for _ in xrange(passes):
-                data.seek(0)
-                data.write("\x00" * length)
-    os.remove(path)
+    files = os.listdir(path)
+    for i, f in enumerate(files):
+        files[i] = "{}/{}".format(path, f)
+    for item in files:
+        with open(item, "wr") as data:
+            length = data.tell()
+            if random_fill:
+                for _ in xrange(passes):
+                    data.seek(0)
+                    data.write(os.urandom(length))
+            if null_fill:
+                for _ in xrange(passes):
+                    data.seek(0)
+                    data.write("\x00" * length)
+        os.remove(item)
 
 
 def store_key(path):
@@ -47,16 +56,17 @@ def store_key(path):
             key_.write("{}{}{}:{}".format(front_salt, key, back_salt, length))
         info(
             "key has been stored successfully and securely. you will be given three attempts to successfully "
-            "enter your stored key at each login, after three attempts all data in the programs home directory "
-            "will be securely erased"
+            "enter your stored key at each login, after three failed attempts all data in the programs home "
+            "directory will be securely erased"
         )
         exit(-1)
     else:
-        retval = open(key_file).read()
-        amount = retval.split(":")[-1]
-        edited = retval[16:]
-        edited = edited[:int(amount)]
-        return edited
+        with open(key_file) as data:
+            retval = data.read()
+            amount = retval.split(":")[-1]
+            edited = retval[16:]
+            edited = edited[:int(amount)]
+            return edited
 
 
 def compare(stored):
@@ -77,14 +87,14 @@ def compare(stored):
             elif tries == 1:
                 fatal("you have one chance left to provide the correct key or all data will be deleted")
             else:
-                warning("incorrect key".format(tries))
+                warning("incorrect key")
     return False
 
 
 def display_formatted_list_output(data, key):
-    seperator = "-" * 30
+    separator = "-" * 30
 
-    print(seperator)
+    print(separator)
     for row in data:
         print(
             "INFO: {0: <30}\tSTORED PASSWORD: {1: <40}".format(
@@ -92,6 +102,23 @@ def display_formatted_list_output(data, key):
                 encryption.aes_encryption.AESCipher(key).decrypt(row[1])
             )
         )
-    print(seperator)
+    print(separator)
     warning("all output is displayed in plaintext")
+
+
+def random_string(length=5, hard=False):
+    if not hard:
+        acceptable = string.ascii_letters
+    else:
+        acceptable = list(string.printable)[:-6]
+    retval = []
+    for _ in range(length):
+        retval.append(random.choice(acceptable))
+    return ''.join(retval)
+
+
+
+
+
+
 
