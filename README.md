@@ -1,6 +1,8 @@
 # letmein
 
-Letmein is a light weight easy to use password manager that stores your passwords with AES-256 encryption into a sqlite3 database file.
+Letmein is a light weight easy to use password manager that stores your passwords with AES-256 encryption into a sqlite3 database file. The database file itself when looked at looks something like this:
+
+<img width="1581" alt="databasefile" src="https://user-images.githubusercontent.com/14183473/42097397-abc213fa-7b7d-11e8-92d4-19f3f9848892.png">
 
 In order to decrypt the AES ciphers you will need the hashed master password that is stored in `~/.letmein/.key`. An example of the hashed password looks like this:
 
@@ -35,4 +37,53 @@ def secure_delete(path, random_fill=True, null_fill=True, passes=3):
 
 The point if this project is to better understand how hashing works and how password managers work. This project is not complete and is not ready for use (I highly recommend you use a well known password manager over this one). It is being stored on Github for review access.
 
+# Example usage:
 
+Displaying all passwords currently stored in the database:
+
+```bash
+(letmein) TBG-a0216:letmein admin$ python letmein.py -S
+[09:12:52][PROMPT] enter your encryption key, 3 tries left: 
+[09:12:57][INFO] key accepted!
+[09:12:57][INFO] gathered 6 password(s) total
+[09:12:57][INFO] decrypting stored information
+------------------------------
+INFO: some 2random info                 STORED PASSWORD: this is a testing password1             
+INFO: some 7random info                 STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+------------------------------
+[09:13:09][WARNING] all output is displayed in plaintext
+(letmein) TBG-a0216:letmein admin$ 
+```
+
+Storing a password:
+
+```bash
+(letmein) TBG-a0216:letmein admin$ python letmein.py -W
+[09:14:45][PROMPT] enter your encryption key, 3 tries left: 
+[09:14:50][INFO] key accepted!
+[09:14:50][PROMPT] enter the information string associated with this password: this is a password storing teset
+[09:15:01][PROMPT] enter the password to store: 
+[09:15:08][INFO] password stored successfully
+(letmein) TBG-a0216:letmein admin$ 
+```
+
+Displaying all passwords that match a regular expression:
+
+```bash
+(letmein) TBG-a0216:letmein admin$ python letmein.py -R test
+[09:15:39][PROMPT] enter your encryption key, 3 tries left: 
+[09:15:43][INFO] key accepted!
+[09:15:43][INFO] a total of 4 item(s) matched your search
+------------------------------
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+INFO: some random test info             STORED PASSWORD: this is a test password2                
+------------------------------
+[09:15:51][WARNING] all output is displayed in plaintext
+(letmein) TBG-a0216:letmein admin$ 
+```
