@@ -21,6 +21,15 @@ HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
 KEY_FILES_DIR = "{}/.data".format(HOME)
+VERSION = "0.1"
+BANNER = """\n\033[32m
+   __      _                _____\033[0m\033[32m      
+  / /  ___| |_  /\/\   ___  \_   \ \033[0m
+ / /  / _ \ __|/    \ / _ \  / /\/ '_ \ \033[0m\033[32m 
+/ /__|  __/ |_/ /\/\ \  __/\/ /_ | | | | \033[0m
+\____/\___|\__\/    \/\___\____/ |_| |_| \033[0m\033[32m[]\033[0m[]\033[0m\033[32m[]\033[0m[]
+Version: v{}\033[0m
+\n""".format(VERSION)
 
 
 def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):

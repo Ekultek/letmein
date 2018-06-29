@@ -10,6 +10,7 @@ from lib.output import (
 from lib.settings import (
     store_key,
     MAIN_DIR,
+    BANNER,
     compare,
     secure_delete,
     DATABASE_FILE,
@@ -25,6 +26,9 @@ from sql.sql import (
 
 
 def main():
+
+    print(BANNER)
+
     opt = LetMeInParser().optparse()
 
     stored_key = store_key(MAIN_DIR)
