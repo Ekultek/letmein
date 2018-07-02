@@ -1,15 +1,20 @@
 import base64
+import string
+import random
 
 from Crypto import Random
 from Crypto.Cipher import AES
 
-from lib.settings import sha256_rounds
+from lib.settings import (
+    sha256_rounds,
+    MAIN_DIR
+)
 
 
 class AESCipher(object):
 
     """
-    implmenetation of the AES Cipher using PyCrypto
+    implementation of the AES Cipher using PyCrypto
     """
 
     def __init__(self, key):
@@ -29,3 +34,19 @@ class AESCipher(object):
         iv = enc[:16]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         return self.unpad(cipher.decrypt(enc[16:]))
+
+    def generate_key(self, raw):
+        contingent_length = random.choice(range(100, 500))
+        acceptable_padding = list(string.printable)
+        length = len(raw)
+        half = length / 2
+        new_raw = raw[:half]
+        if half != contingent_length:
+            while half != contingent_length:
+                new_raw += random.choice(acceptable_padding)
+                half = len(new_raw) / 2
+        salt = Random.get_random_bytes(78)
+        new_raw = "$letmein${}${}".format(new_raw, salt)
+        with open("{}/.key".format(MAIN_DIR), "a+") as keyfob:
+            key = self.encrypt(new_raw)
+            keyfob.write(key)

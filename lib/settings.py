@@ -20,8 +20,7 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-KEY_FILES_DIR = "{}/.data".format(HOME)
-VERSION = "0.1"
+VERSION = "0.0.1"
 BANNER = """\n\033[32m
    __      _                _____\033[0m\033[32m      
   / /  ___| |_  /\/\   ___  \_   \ \033[0m
@@ -67,16 +66,19 @@ def store_key(path):
     """
     if not os.path.exists(path):
         os.mkdir(path)
+    password_file = "{}/.pass".format(path)
     key_file = "{}/.key".format(path)
-    if not os.path.exists(key_file):
+    if not os.path.exists(password_file):
         provided_key = prompt(
             "you have not provided an encryption key, please provide one: ", hide=True
         )
         key = base64.urlsafe_b64encode(sha256_rounds(provided_key))
+        encryption.aes_encryption.AESCipher(key).generate_key(provided_key)
         length = len(key)
-        with open(key_file, "a+") as key_:
+        with open(password_file, "a+") as key_:
             front_salt, back_salt = os.urandom(16), os.urandom(16)
             key_.write("{}{}{}:{}".format(front_salt, key, back_salt, length))
+
         info(
             "key has been stored successfully and securely. you will be given three attempts to successfully "
             "enter your stored key at each login, after three failed attempts all data in the programs home "
@@ -84,12 +86,14 @@ def store_key(path):
         )
         exit(-1)
     else:
-        with open(key_file) as data:
+        with open(password_file) as data:
             retval = data.read()
             amount = retval.split(":")[-1]
             edited = retval[16:]
             edited = edited[:int(amount)]
-            return edited
+        with open(key_file) as data:
+            retval = encryption.aes_encryption.AESCipher(edited).decrypt(data.read())
+        return retval, edited
 
 
 def compare(stored):
@@ -147,10 +151,3 @@ def random_string(length=5, hard=False):
     for _ in range(length):
         retval.append(random.choice(acceptable))
     return ''.join(retval)
-
-
-
-
-
-
-

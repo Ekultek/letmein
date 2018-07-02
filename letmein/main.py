@@ -29,14 +29,15 @@ def main():
 
     print(BANNER)
 
-    opt = LetMeInParser().optparse()
+    info("initializing")
+    stored_key, stored_password = store_key(MAIN_DIR)
 
-    stored_key = store_key(MAIN_DIR)
-
-    if not compare(stored_key):
+    if not compare(stored_password):
         secure_delete(MAIN_DIR)
         warning("ALL DATA HAS BEEN REMOVED")
     else:
+        opt = LetMeInParser().optparse()
+
         info("key accepted!")
         conn, cursor = create_connection(DATABASE_FILE)
         if opt.showAllStoredPasswords:
@@ -100,5 +101,4 @@ def main():
             secure_delete(MAIN_DIR)
             info("all data has been deleted")
         exit(0)
-
 
