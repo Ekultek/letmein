@@ -20,7 +20,7 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.4"
+VERSION = "0.0.1.5"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
    __      _                _____\033[0m\033[32m      
