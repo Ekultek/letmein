@@ -192,6 +192,9 @@ def check_for_file_change():
     if not os.path.exists(INIT_FILE):
         fatal("init file does not exist, will not continue")
         exit(-1)
+    if open(INIT_FILE).read() == "":
+        fatal("init file has been edited, will not continue")
+        exit(-1)
 
     accepted = []
     files_to_check = [

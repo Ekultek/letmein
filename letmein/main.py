@@ -42,7 +42,7 @@ def main():
         stored_key, _ = store_key(MAIN_DIR, grab_key=True)
         opt = LetMeInParser().optparse()
 
-        info("key accepted!")
+        info("password accepted!")
         conn, cursor = create_connection(DATABASE_FILE)
         if opt.showAllStoredPasswords:
             password_data = select_all_data(cursor, "encrypted_data")
