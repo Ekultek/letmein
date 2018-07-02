@@ -45,7 +45,9 @@ def main():
             if password_data is not None:
                 info("gathered {} password(s) total".format(len(password_data)))
                 info("decrypting stored information")
-                display_formatted_list_output(password_data, stored_key)
+                display_formatted_list_output(
+                    password_data, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
+                )
             else:
                 fatal("received no password data from the database, is there anything in there?")
         elif opt.storeProvidedPassword:
@@ -76,7 +78,9 @@ def main():
                 error("no items matched your search")
             else:
                 info("a total of {} item(s) matched your search".format(len(data)))
-                display_formatted_list_output(data, stored_key)
+                display_formatted_list_output(
+                    data, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
+                )
         elif opt.updateExistingPassword is not None:
             apparent_possible_passwords = display_by_regex(opt.updateExistingPassword, conn, cursor)
             if len(apparent_possible_passwords) == 0:

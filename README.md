@@ -38,20 +38,14 @@ You shouldn't. The password file is stored in your home directory under `.letmei
 
 Running without a command will drop you directly into the help menu:
 ```bash
-python letmein.py
-[12:44:39][FATAL] no arguments passed, dropping to help page
-usage: letmein.py [-h] [-p PASSWORD] [-i INFORMATION] [-S]
-                  [-s INFORMATION-STRING] [-R REGEX] [-W] [-u [INFO]]
-                  [--clean]
+usage: ./letmein -[S|W|R|u|s] [REGEX|INFO STRING] [-pP|iI] [PASSWORD|INFO] [--clean|no-prompt|answer] [ANSWER]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p PASSWORD, -P PASSWORD, --password PASSWORD
-                        provide a plaintext password to store
-                        (*default=prompt)
-  -i INFORMATION, -I INFORMATION, --info INFORMATION
-                        provide information about the password to store
-                        alongside (*default=prompt)
+
+mandatory:
+  arguments that must be passed to run the program
+
   -S, --show-all        display all stored passwords
   -s INFORMATION-STRING, --show INFORMATION-STRING
                         provided the information string stored alongside the
@@ -60,12 +54,29 @@ optional arguments:
                         provided a string that will be searched as a regular
                         expression and pull all the passwords that match the
                         given expression
-  -W, --store           store the provided password into the encrypted
-                        database
-  -u [INFO], --update [INFO]
+  -W, --store           store a password in the database
+  -u INFO, --update INFO
                         update an existing password by looking for the
                         associated information string
+
+information:
+  arguments you can pass to provide information
+
+  -p PASSWORD, -P PASSWORD, --password PASSWORD
+                        provide a plaintext password to store
+                        (*default=prompt)
+  -i INFORMATION, -I INFORMATION, --info INFORMATION
+                        provide information about the password to store
+                        alongside (*default=prompt)
+
+misc:
+  arguments that don't fit into any other category
+
   --clean               erase everything in the home folder
+  --no-prompt           don't prompt to display the passwords in plaintext
+  --answer ANSWER       pass the prompt answer in conjunction with `--no-
+                        prompt`
+
 ```
 
 If there is not password stored in the key file, you will be prompted to create a new one:

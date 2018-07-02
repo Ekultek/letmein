@@ -20,7 +20,7 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1"
+VERSION = "0.0.1.1"
 BANNER = """\n\033[32m
    __      _                _____\033[0m\033[32m      
   / /  ___| |_  /\/\   ___  \_   \ \033[0m
@@ -121,22 +121,37 @@ def compare(stored):
     return False
 
 
-def display_formatted_list_output(data, key):
+def display_formatted_list_output(data, key, prompting=True, answer="n"):
     """
     display decrypted data in plaintext
     """
     separator = "-" * 30
 
-    print(separator)
-    for row in data:
-        print(
-            "INFO: {0: <30}\tSTORED PASSWORD: {1: <40}".format(
-                row[0],
-                encryption.aes_encryption.AESCipher(key).decrypt(row[1])
+    if prompting:
+        choice = prompt("display plaintext?[y/N] ")
+    else:
+        choice = answer
+
+    if choice.lower().startswith("y"):
+        warning("all output is displayed in plaintext")
+        print(separator)
+        for row in data:
+            print(
+                "INFO: {0: <30}\tSTORED PASSWORD: {1: <40}".format(
+                    row[0],
+                    encryption.aes_encryption.AESCipher(key).decrypt(row[1])
+                )
             )
-        )
-    print(separator)
-    warning("all output is displayed in plaintext")
+        print(separator)
+    else:
+        print(separator)
+        for row in data:
+            print(
+                "INFO: {0: <30}\tSTORED PASSWORD(hidden): {1: <40}".format(
+                    row[0],
+                    "*" * 7
+                )
+            )
 
 
 def random_string(length=5, hard=False):
