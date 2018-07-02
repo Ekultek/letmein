@@ -1,5 +1,3 @@
-import os
-
 from lib.cmd import LetMeInParser
 from encryption.aes_encryption import AESCipher
 from lib.output import (
@@ -16,7 +14,8 @@ from lib.settings import (
     compare,
     secure_delete,
     DATABASE_FILE,
-    display_formatted_list_output
+    display_formatted_list_output,
+    create_data_tuples
 )
 from sql.sql import (
     create_connection,
@@ -112,6 +111,12 @@ def main():
                         info("password updated successfully")
                     else:
                         fatal("issue updating password: {}".format(result))
+        elif opt.batchStore:
+            to_store = create_data_tuples(stored_key)
+            info("storing {} encrypted password(s)".format(len(to_store)))
+            for item in to_store:
+                create_new_row(conn, cursor, item[0], item[1])
+            info("information stored")
         elif opt.cleanHomeFolder:
             secure_delete(MAIN_DIR)
             info("all data has been deleted")

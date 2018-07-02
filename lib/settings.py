@@ -121,7 +121,7 @@ def compare(stored):
 
     while True:
         provided_key = prompt(
-            "enter your encryption key, {} tries left: ".format(tries), hide=True
+            "enter your encryption password, {} tries left: ".format(tries), hide=True
         )
         stored_key = base64.urlsafe_b64decode(stored)
         provided_key = sha256_rounds(provided_key)
@@ -216,3 +216,21 @@ def check_for_file_change():
         fatal("a file has been changed since initialization assuming compromised and deleting data")
         secure_delete(MAIN_DIR)
         exit(-1)
+
+
+def create_data_tuples(key):
+    """
+    create the tuples for storing multiple passwords at a time
+    """
+    stop = False
+    retval = []
+    info("press CNTRL-C to finish")
+    while not stop:
+        try:
+            information = prompt("enter password information: ")
+            password = prompt("enter password to store with the information ({}): ".format(information), hide=True)
+            retval.append((information, encryption.aes_encryption.AESCipher(key).encrypt(password)))
+        except KeyboardInterrupt:
+            stop = True
+            print()
+    return retval

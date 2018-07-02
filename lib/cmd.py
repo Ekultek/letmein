@@ -28,6 +28,8 @@ class LetMeInParser(argparse.ArgumentParser):
                                help="store a password in the database")
         mandatory.add_argument("-u", "--update", metavar="INFO", dest="updateExistingPassword",
                                help="update an existing password by looking for the associated information string")
+        mandatory.add_argument("-b", "--batch", action="store_true", dest="batchStore",
+                               help="store multiple passwords instead of one at a time")
 
         information = parser.add_argument_group("information", "arguments you can pass to provide information")
         information.add_argument("-p", "-P", "--password", metavar="PASSWORD", dest="passwordToProcess",
