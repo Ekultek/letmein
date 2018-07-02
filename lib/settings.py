@@ -20,7 +20,8 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.1"
+VERSION = "0.0.1.4"
+INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
    __      _                _____\033[0m\033[32m      
   / /  ___| |_  /\/\   ___  \_   \ \033[0m
@@ -60,7 +61,20 @@ def secure_delete(path, random_fill=True, null_fill=True, passes=3):
         os.remove(item)
 
 
-def store_key(path):
+def write_init_file(filename, files, path):
+    """
+    configure the init file on your first run
+    """
+    retval = []
+    for item in files:
+        retval.append("{}/{}".format(path, item))
+    with open(filename, "a+") as data:
+        for item in retval:
+            change_time = os.stat(item).st_mtime
+            data.write(str(change_time) + "\n")
+
+
+def store_key(path, grab_key=False):
     """
     store the encrypted key or be prompted to create one
     """
@@ -78,21 +92,24 @@ def store_key(path):
         with open(password_file, "a+") as key_:
             front_salt, back_salt = os.urandom(16), os.urandom(16)
             key_.write("{}{}{}:{}".format(front_salt, key, back_salt, length))
-
+        write_init_file(INIT_FILE, os.listdir(MAIN_DIR), MAIN_DIR)
         info(
-            "key has been stored successfully and securely. you will be given three attempts to successfully "
-            "enter your stored key at each login, after three failed attempts all data in the programs home "
-            "directory will be securely erased. you will need to re-run the application now."
+            "letmein has been initialized. you will need to re-run the program."
         )
         exit(-1)
     else:
+        check_for_file_change()
         with open(password_file) as data:
             retval = data.read()
             amount = retval.split(":")[-1]
             edited = retval[16:]
             edited = edited[:int(amount)]
-        with open(key_file) as data:
-            retval = encryption.aes_encryption.AESCipher(edited).decrypt(data.read())
+        if grab_key:
+            with open(key_file) as data:
+                retval = encryption.aes_encryption.AESCipher(edited).decrypt(data.read())
+        else:
+            retval = None
+
         return retval, edited
 
 
@@ -166,3 +183,33 @@ def random_string(length=5, hard=False):
     for _ in range(length):
         retval.append(random.choice(acceptable))
     return ''.join(retval)
+
+
+def check_for_file_change():
+    """
+    check if a file has been changed or not, if it has, delete all the data in the home directory
+    """
+    if not os.path.exists(INIT_FILE):
+        fatal("init file does not exist, will not continue")
+        exit(-1)
+
+    accepted = []
+    files_to_check = [
+        "{}/.key".format(MAIN_DIR),
+        "{}/.pass".format(MAIN_DIR)
+    ]
+    current_caches = open(INIT_FILE).read().split("\n")
+    try:
+        current_caches.pop()
+    except:
+        pass
+    for item in zip(current_caches, files_to_check):
+        change_time = os.stat(item[1]).st_mtime
+        if str(change_time) != item[0]:
+            accepted.append("nogo")
+        else:
+            accepted.append("go")
+    if "nogo" in accepted:
+        fatal("a file has been changed since initialization assuming compromised and deleting data")
+        secure_delete(MAIN_DIR)
+        exit(-1)

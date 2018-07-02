@@ -75,3 +75,10 @@ def display_by_regex(regex, connection, cursor, tablename="encrypted_data"):
         results = None
     return results
 
+
+def show_single_password(info, cursor, tablename="encrypted_data"):
+    sql_command = "SELECT info, data FROM {} where INFO = {};".format(tablename, info)
+    cursor.execute(sql_command)
+    results = cursor.fetchall()
+    return results
+

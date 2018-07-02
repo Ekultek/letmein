@@ -1,3 +1,5 @@
+import os
+
 from lib.cmd import LetMeInParser
 from encryption.aes_encryption import AESCipher
 from lib.output import (
@@ -21,7 +23,8 @@ from sql.sql import (
     select_all_data,
     create_new_row,
     display_by_regex,
-    update_existing_column
+    update_existing_column,
+    show_single_password
 )
 
 
@@ -30,12 +33,13 @@ def main():
     print(BANNER)
 
     info("initializing")
-    stored_key, stored_password = store_key(MAIN_DIR)
+    _, stored_password = store_key(MAIN_DIR)
 
     if not compare(stored_password):
         secure_delete(MAIN_DIR)
         warning("ALL DATA HAS BEEN REMOVED")
     else:
+        stored_key, _ = store_key(MAIN_DIR, grab_key=True)
         opt = LetMeInParser().optparse()
 
         info("key accepted!")
@@ -50,6 +54,13 @@ def main():
                 )
             else:
                 fatal("received no password data from the database, is there anything in there?")
+        elif opt.showOnlyThisPassword is not None:
+            results = show_single_password(opt.showOnlyThisPassword, cursor)
+            if len(results) == 0:
+                warning("no information could be found with the provided string, you should check all first")
+            else:
+                info("found what you are looking for")
+                display_formatted_list_output(results, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer)
         elif opt.storeProvidedPassword:
             if opt.passwordInformation is not None:
                 password_information = opt.passwordInformation
