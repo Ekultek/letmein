@@ -18,8 +18,8 @@ except:
     xrange = range
 
 HOME = os.path.expanduser("~")
-MAIN_DIR = "{}/.letmein".format(HOME)
-DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
+MAIN_DIR = "{}/.letmein_main".format(HOME)
+DATABASE_FILE = "{}/letmein_main.db".format(MAIN_DIR)
 VERSION = "0.0.1.5"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
@@ -94,7 +94,7 @@ def store_key(path, grab_key=False):
             key_.write("{}{}{}:{}".format(front_salt, key, back_salt, length))
         write_init_file(INIT_FILE, os.listdir(MAIN_DIR), MAIN_DIR)
         info(
-            "letmein has been initialized. you will need to re-run the program."
+            "letmein_main has been initialized. you will need to re-run the program."
         )
         exit(-1)
     else:

@@ -13,7 +13,11 @@ class LetMeInParser(argparse.ArgumentParser):
     @staticmethod
     def optparse():
         parser = argparse.ArgumentParser(
-            usage="./letmein -[S|W|R|u|s] [REGEX|INFO STRING] [-pP|iI] [PASSWORD|INFO] [--clean|no-prompt|answer] [ANSWER]"
+            usage=(
+                "./letmein_main -[S|W|R|u|s] [REGEX|INFO STRING]\n"
+                "\t\t{spacer}[-pP|iI] [PASSWORD|INFO]\n"
+                "\t\t{spacer}[--clean|no-prompt|answer] [ANSWER]"
+            ).format(spacer=" " * 5)
         )
         mandatory = parser.add_argument_group("mandatory", "arguments that must be passed to run the program")
         mandatory.add_argument("-S", "--show-all", action="store_true", dest="showAllStoredPasswords",

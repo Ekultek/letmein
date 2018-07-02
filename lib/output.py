@@ -58,7 +58,7 @@ def error(string):
     print(
         "[{}][{}] {}".format(
             set_color(time.strftime("%H:%M:%S"), level=40),
-            set_color("FATAL", level=40),
+            set_color("ERROR", level=40),
             string
         )
     )
