@@ -155,7 +155,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         print(separator)
         for row in data:
             print(
-                "INFO: {0: <30}\tSTORED PASSWORD: {1: <60}".format(
+                "INFO: {0: <30}\tSTORED PASSWORD: {1: <100}".format(
                     row[0],
                     encryption.aes_encryption.AESCipher(key).decrypt(row[1])
                 )
