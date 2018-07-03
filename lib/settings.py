@@ -20,8 +20,8 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.6.{}"
-VERSION_STRING = "\033[35mbeta\033[0m" if VERSION.count(".") == 4 else "\033[36malpha\033[0m" if VERSION.count(".") == 3 else "\033[32mstable\033[0m"
+VERSION = "0.0.1.6({})"
+VERSION_STRING = "\033[35mbeta\033[0m" if VERSION.count(".") == 3 else "\033[36malpha\033[0m" if VERSION.count(".") == 2 else "\033[32mstable\033[0m"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
    __      _                _____\033[0m\033[32m      
