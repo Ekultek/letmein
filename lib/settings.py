@@ -144,7 +144,6 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
     display decrypted data in plaintext
     """
     separator = "-" * 30
-    padding = " "
 
     if prompting:
         choice = prompt("display plaintext?[y/N] ")
@@ -167,6 +166,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
                     row[0], "*" * 7
                 )
             )
+        print(separator)
 
 
 def random_string(length=5, hard=False):
