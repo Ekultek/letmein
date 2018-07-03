@@ -155,7 +155,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         print(separator)
         for row in data:
             print(
-                "INFO: {0: >30} {1: >30} {2: >30}".format(
+                "INFO: {0: >30} {1: >50} {2: >30}".format(
                     row[0],
                     "STORED PASSWORD:",
                     encryption.aes_encryption.AESCipher(key).decrypt(row[1])
@@ -166,7 +166,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         print(separator)
         for row in data:
             print(
-                "INFO: {0: >30} {1: >30} {2: >30}".format(
+                "INFO: {0: >30} {1: >50} {2: >30}".format(
                     row[0],
                     "STORED PASSWORD(hidden):",
                     "*" * 7
