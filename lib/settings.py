@@ -4,6 +4,8 @@ import string
 import random
 import hashlib
 
+from pandas import DataFrame
+
 import encryption.aes_encryption
 from lib.output import (
     info,
@@ -144,6 +146,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
     display decrypted data in plaintext
     """
     separator = "-" * 30
+    padding = " "
 
     if prompting:
         choice = prompt("display plaintext?[y/N] ")
@@ -155,8 +158,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         print(separator)
         for row in data:
             row = [["INFO:", row[0]], ["STORED PASSWORD:", encryption.aes_encryption.AESCipher(key).decrypt(row[1])]]
-            widths = [max(map(len, col)) for col in zip(*row)]
-            print("  ".join((val.ljust(width) for val, width in zip(row, widths))))
+            print(DataFrame(row))
             # print(
             #     "{: >30}  {: >30}  {: >30}  {: >30}".format(*row)
             # )
@@ -172,8 +174,7 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         print(separator)
         for row in data:
             row = [["INFO:", row[0]], ["STORED PASSWORD:", "*" * 7]]
-            widths = [max(map(len, col)) for col in zip(*row)]
-            print("  ".join((val.ljust(width) for val, width in zip(row, widths))))
+            print(DataFrame(row))
             # print(
             #     "INFO: {0: >30} {1: >50} {2: >30}".format(
             #         row[0],
