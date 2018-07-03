@@ -1,2 +1,1 @@
 pycrypto==2.6.1
-pandas==0.23.1
