@@ -3,6 +3,8 @@
 from letmein_main.main import main
 
 
+# letmein is a lightweight password manager that is still in production, use at your own
+# risk.
 if __name__ == "__main__":
     main()
 

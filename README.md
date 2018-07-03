@@ -9,6 +9,7 @@ Letmein is a simple easy to use password manager that that uses `AES-256` encryp
 # Directory
  - [Usage](https://github.com/Ekultek/letmein/wiki/Usage)
  - [Information](https://github.com/Ekultek/letmein/wiki/Encryption-Precaution-information)
+ - [Installation](https://github.com/Ekultek/letmein/wiki/Installation)
  
 
 # Why should I use this?

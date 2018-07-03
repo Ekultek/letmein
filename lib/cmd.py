@@ -49,6 +49,8 @@ class LetMeInParser(argparse.ArgumentParser):
                           help="don't prompt to display the passwords in plaintext")
         misc.add_argument("--answer", metavar="ANSWER", default="n", dest="promptAnswer",
                           help="pass the prompt answer in conjunction with `--no-prompt`")
+        misc.add_argument("--reset-master", action="store_true", dest="resetAllMasters",
+                          help="reset your master key and password")
         opts = parser.parse_args()
 
         if len(sys.argv) == 1:

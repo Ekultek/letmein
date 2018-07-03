@@ -5,10 +5,7 @@ import random
 from Crypto import Random
 from Crypto.Cipher import AES
 
-from lib.settings import (
-    sha256_rounds,
-    MAIN_DIR
-)
+import lib.settings
 
 
 class AESCipher(object):
@@ -18,7 +15,7 @@ class AESCipher(object):
     """
 
     def __init__(self, key):
-        self.key = sha256_rounds(key)
+        self.key = lib.settings.sha256_rounds(key)
         self.block_size = AES.block_size
         self.pad = lambda s: s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
         self.unpad = lambda s: s[:-ord(s[len(s)-1:])]
@@ -46,7 +43,7 @@ class AESCipher(object):
                 new_raw += random.choice(acceptable_padding)
                 half = len(new_raw) / 2
         salt = Random.get_random_bytes(78)
-        new_raw = "$letmein_main${}${}".format(new_raw, salt)
-        with open("{}/.key".format(MAIN_DIR), "a+") as keyfob:
+        new_raw = "$letmein${}${}".format(new_raw, salt)
+        with open("{}/.key".format(lib.settings.MAIN_DIR), "a+") as keyfob:
             key = self.encrypt(new_raw)
             keyfob.write(key)
