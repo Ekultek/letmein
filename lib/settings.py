@@ -95,7 +95,7 @@ def store_key(path, grab_key=False):
             key_.write("{}{}{}:{}".format(front_salt, key, back_salt, length))
         write_init_file(INIT_FILE, os.listdir(MAIN_DIR), MAIN_DIR)
         info(
-            "letmein_main has been initialized. you will need to re-run the program."
+            "letmein has been initialized. you will need to re-run the program."
         )
         exit(-1)
     else:
