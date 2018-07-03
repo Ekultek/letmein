@@ -157,31 +157,18 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         warning("all output is displayed in plaintext")
         print(separator)
         for row in data:
-            row = [["INFO:", row[0]], ["STORED PASSWORD:", encryption.aes_encryption.AESCipher(key).decrypt(row[1])]]
-            print(DataFrame(row))
-            # print(
-            #     "{: >30}  {: >30}  {: >30}  {: >30}".format(*row)
-            # )
-            # print(
-            #     "INFO: {0: >30} {1: >50} {2: >30}".format(
-            #         row[0],
-            #         "STORED PASSWORD:",
-            #         encryption.aes_encryption.AESCipher(key).decrypt(row[1])
-            #     )
-            # )
+            print("INFO: {}\nSTORED PASSWORD: {}\n".format(
+                row[0], encryption.aes_encryption.AESCipher(key).decrypt(row[1])
+            ))
         print(separator)
     else:
         print(separator)
         for row in data:
-            row = [["INFO:", row[0]], ["STORED PASSWORD:", "*" * 7]]
-            print(DataFrame(row))
-            # print(
-            #     "INFO: {0: >30} {1: >50} {2: >30}".format(
-            #         row[0],
-            #         "STORED PASSWORD(hidden):",
-            #         "*" * 7
-            #     )
-            # )
+            print(
+                "INFO: {}\nSTORED PASSWORD: {}\n".format(
+                    row[0], "*" * 7
+                )
+            )
 
 
 def random_string(length=5, hard=False):
