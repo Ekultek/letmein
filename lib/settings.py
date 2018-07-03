@@ -3,7 +3,6 @@ import base64
 import string
 import random
 import hashlib
-import subprocess
 
 import encryption.aes_encryption
 from lib.output import (
@@ -21,7 +20,7 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.6.{}".format(str(subprocess.check_output(["git", "rev-parse", "origin/master"]))[:6])
+VERSION = "0.0.1.6.{}"
 VERSION_STRING = "\033[35mbeta\033[0m" if VERSION.count(".") == 4 else "\033[36malpha\033[0m" if VERSION.count(".") == 3 else "\033[32mstable\033[0m"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
@@ -30,8 +29,8 @@ BANNER = """\n\033[32m
  / /  / _ \ __|/    \ / _ \  / /\/ '_ \ \033[0m\033[32m 
 / /__|  __/ |_/ /\/\ \  __/\/ /_ | | | | \033[0m
 \____/\___|\__\/    \/\___\____/ |_| |_| \033[0m\033[32m[]\033[0m[]\033[0m\033[32m[]\033[0m[]
-Version: v{}(${})\033[0m
-\n""".format(VERSION, VERSION_STRING)
+Version: v{}\033[0m
+\n""".format(VERSION.format(VERSION_STRING))
 
 
 def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
