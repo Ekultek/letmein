@@ -154,10 +154,12 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
         warning("all output is displayed in plaintext")
         print(separator)
         for row in data:
-            row = ["INFO:", row[0], "STORED PASSWORD:", encryption.aes_encryption.AESCipher(key).decrypt(row[1])]
-            print(
-                "{: >30}  {: >30}  {: >30}  {: >30}".format(*row)
-            )
+            row = [["INFO:", row[0]], ["STORED PASSWORD:", encryption.aes_encryption.AESCipher(key).decrypt(row[1])]]
+            widths = [max(map(len, col)) for col in zip(*row)]
+            print("  ".join((val.ljust(width) for val, width in zip(row, widths))))
+            # print(
+            #     "{: >30}  {: >30}  {: >30}  {: >30}".format(*row)
+            # )
             # print(
             #     "INFO: {0: >30} {1: >50} {2: >30}".format(
             #         row[0],
@@ -169,10 +171,9 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
     else:
         print(separator)
         for row in data:
-            row = ["INFO:", row[0], "STORED PASSWORD:", "*" * 7]
-            print(
-                "{: >30}  {: >30}  {: >30}  {: >30}".format(*row)
-            )
+            row = [["INFO:", row[0]], ["STORED PASSWORD:", "*" * 7]]
+            widths = [max(map(len, col)) for col in zip(*row)]
+            print("  ".join((val.ljust(width) for val, width in zip(row, widths))))
             # print(
             #     "INFO: {0: >30} {1: >50} {2: >30}".format(
             #         row[0],
