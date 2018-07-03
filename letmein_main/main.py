@@ -41,9 +41,9 @@ def main():
         else:
             stored_key, _ = store_key(MAIN_DIR, grab_key=True)
             opt = LetMeInParser().optparse()
-
             info("password accepted!")
             conn, cursor = create_connection(DATABASE_FILE)
+
             if opt.showAllStoredPasswords:
                 password_data = select_all_data(cursor, "encrypted_data")
                 if password_data is not None:
@@ -60,7 +60,9 @@ def main():
                     warning("no information could be found with the provided string, you should check all first")
                 else:
                     info("found what you are looking for")
-                    display_formatted_list_output(results, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer)
+                    display_formatted_list_output(
+                        results, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
+                    )
             elif opt.storeProvidedPassword:
                 if opt.passwordInformation is not None:
                     password_information = opt.passwordInformation
