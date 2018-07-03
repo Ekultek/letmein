@@ -80,8 +80,8 @@ def main():
                     info("password stored successfully")
                 elif status == "exists":
                     warning(
-                        "provided information already exists in the database. if you are trying to update the information "
-                        "use the `-u/--update` switch"
+                        "provided information already exists in the database. "
+                        "if you are trying to update the information use the `-u/--update` switch"
                     )
                 else:
                     fatal("unable to add row to database, received an error: {}".format(status))
