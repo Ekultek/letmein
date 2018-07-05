@@ -1,6 +1,6 @@
 *.pyc
 .idea/*
-venv/*
+venv*/*
 letmein.spec
 build/*
 dist/*
