@@ -15,8 +15,8 @@ def set_color(string, level=None):
         10: "\033[36m{}\033[0m",
         20: "\033[32m{}\033[0m",
         30: "\033[33m{}\033[0m",
-        40: "\033[1m\033[31m{}\033[0m",
-        50: "\033[7;31;31m{}\033[0m"
+        40: "\033[31m{}\033[0m",
+        50: "\033[1m\033[31m{}\033[0m"
     }
     if level is None:
         return color_levels[20].format(string)
@@ -68,7 +68,7 @@ def fatal(string):
     print(
         "[{}][{}] {}".format(
             set_color(time.strftime("%H:%M:%S"), level=50),
-            set_color("FATAL", level=50),
+            set_color("!FATAL!", level=50),
             string
         )
     )
