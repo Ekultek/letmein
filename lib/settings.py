@@ -5,6 +5,12 @@ import base64
 import string
 import random
 import hashlib
+from threading import RLock
+
+from cachetools import (
+    cached,
+    TTLCache
+)
 
 import encryption.aes_encryption
 from lib.output import (
@@ -19,10 +25,12 @@ try:
 except:
     xrange = range
 
+LETMEIN_CACHE = TTLCache(maxsize=250, ttl=600)
+LOCK = RLock()
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.8({})"
+VERSION = "0.0.1.9({})"
 VERSION_STRING = "\033[31m\033[1m*beta\033[0m" if VERSION.count(".") == 3 else "\033[1m\033[36m~alpha\033[0m" if VERSION.count(".") == 2 else "\033[1m\033[32m+stable\033[0m"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
@@ -35,12 +43,19 @@ Version: v{}\033[0m
 \n""".format(VERSION.format(VERSION_STRING))
 
 
-def sha256_rounds(raw, rounds=1500000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
+@cached(LETMEIN_CACHE, lock=LOCK)
+def sha256_rounds(raw, rounds=1500000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ", first_login=False):
     """
     encrypt a string using 1.5 million rounds of PBKDF2-HMAC-SHA-256
     """
-    obj = hashlib.pbkdf2_hmac
-    return obj("sha256", raw, salt, rounds)
+    if len(LETMEIN_CACHE.values()) == 0 and not first_login:
+        obj = hashlib.pbkdf2_hmac
+        return obj("sha256", raw, salt, rounds)
+    elif first_login:
+        obj = hashlib.pbkdf2_hmac
+        return obj("sha256", raw, salt, rounds)
+    else:
+        return LETMEIN_CACHE.values()[-1]
 
 
 def secure_delete(path, triple_fill=True, passes=3):
@@ -160,7 +175,7 @@ def compare(stored):
             "enter your encryption password, {} tries left: ".format(tries), hide=True
         )
         stored_key = base64.urlsafe_b64decode(stored)
-        provided_key = sha256_rounds(provided_key)
+        provided_key = sha256_rounds(provided_key, first_login=True)
         if stored_key == provided_key:
             if not complex_verification(provided_key, stored_key):
                 return False
@@ -269,3 +284,8 @@ def create_data_tuples(key):
             stop = True
             print()
     return retval
+
+
+def clear_cache(cache_drawer):
+    with LOCK:
+        cache_drawer.clear()

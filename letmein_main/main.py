@@ -16,7 +16,9 @@ from lib.settings import (
     secure_delete,
     DATABASE_FILE,
     display_formatted_list_output,
-    create_data_tuples
+    create_data_tuples,
+    clear_cache,
+    LETMEIN_CACHE
 )
 
 
@@ -136,6 +138,7 @@ def main():
             elif opt.cleanHomeFolder:
                 secure_delete(MAIN_DIR)
                 info("all data has been deleted")
+            clear_cache(LETMEIN_CACHE)
             exit(0)
     except KeyboardInterrupt:
         error("user quit")

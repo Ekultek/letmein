@@ -1,1 +1,2 @@
 pycrypto==2.6.1
+cachetools==2.1.0
