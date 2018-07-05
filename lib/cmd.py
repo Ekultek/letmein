@@ -51,11 +51,13 @@ class LetMeInParser(argparse.ArgumentParser):
                           help="pass the prompt answer in conjunction with `--no-prompt`")
         misc.add_argument("--reset-master", action="store_true", dest="resetAllMasters",
                           help="reset your master key and password")
+        misc.add_argument("--version", action="store_true", dest="showVersionNumber",
+                          help="show the version number and exit")
         opts = parser.parse_args()
 
         if len(sys.argv) == 1:
             error("no arguments passed, dropping to help page")
-            time.sleep(3)
+            time.sleep(1.5)
             parser.print_help()
             exit(1)
         return opts
