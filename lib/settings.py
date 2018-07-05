@@ -25,12 +25,12 @@ try:
 except:
     xrange = range
 
-LETMEIN_CACHE = TTLCache(maxsize=250, ttl=100)
+LETMEIN_CACHE = TTLCache(maxsize=2, ttl=10)
 LOCK = RLock()
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.9({})"
+VERSION = "0.0.1.10({})"
 VERSION_STRING = "\033[31m\033[1m*beta\033[0m" if VERSION.count(".") == 3 else "\033[1m\033[36m~alpha\033[0m" if VERSION.count(".") == 2 else "\033[1m\033[32m+stable\033[0m"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m

@@ -56,7 +56,7 @@ def main():
                     )
                 else:
                     fatal("received no password data from the database, is there anything in there?")
-            elif opt.showOnlyThisPassword is not None:
+            if opt.showOnlyThisPassword is not None:
                 results = SQL(information=opt.showOnlyThisPassword, cursor=cursor).show_single_password()
                 if len(results) == 0:
                     warning("no information could be found with the provided string, you should check all first")
@@ -70,7 +70,8 @@ def main():
                         print("INFO: {}\tSTORED PASSWORD: {}\n\n{}".format(
                             results[0], AESCipher(stored_key).decrypt(results[1]), "-" * 30
                         ))
-            elif opt.storeProvidedPassword:
+                clear_cache(LETMEIN_CACHE)
+            if opt.storeProvidedPassword:
                 if opt.passwordInformation is not None:
                     password_information = opt.passwordInformation
                 else:
@@ -95,7 +96,8 @@ def main():
                     )
                 else:
                     fatal("unable to add row to database, received an error: {}".format(status))
-            elif opt.regexToSearch is not None:
+                clear_cache(LETMEIN_CACHE)
+            if opt.regexToSearch is not None:
                 data = SQL(regex=opt.regexToSearch, connection=conn, cursor=cursor).display_by_regex()
                 if len(data) == 0:
                     error("no items matched your search")
@@ -104,7 +106,8 @@ def main():
                     display_formatted_list_output(
                         data, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
                     )
-            elif opt.updateExistingPassword is not None:
+                clear_cache(LETMEIN_CACHE)
+            if opt.updateExistingPassword is not None:
                 apparent_possible_passwords = SQL(
                     regex=opt.updateExistingPassword, connection=conn, cursor=cursor
                 ).display_by_regex()
@@ -127,18 +130,24 @@ def main():
                             info("password updated successfully")
                         else:
                             fatal("issue updating password: {}".format(result))
-            elif opt.batchStore:
+                clear_cache(LETMEIN_CACHE)
+            if opt.batchStore:
+                results = []
                 to_store = create_data_tuples(stored_key)
-                info("storing {} encrypted password(s)".format(len(to_store)))
                 for item in to_store:
-                    SQL(
+                    res = SQL(
                         connection=conn, cursor=cursor, regex=item[0], information=item[0], enc_password=item[1]
                     ).create_new_row()
-                info("information stored")
-            elif opt.cleanHomeFolder:
+                    results.append(res)
+                amount = len([r for r in results if r == "ok"])
+                info("stored {} encrypted password(s) ({} already in database)".format(
+                    amount, len(to_store) - amount if amount != 0 else 0
+                ))
+                clear_cache(LETMEIN_CACHE)
+            if opt.cleanHomeFolder:
                 secure_delete(MAIN_DIR)
                 info("all data has been deleted")
-            clear_cache(LETMEIN_CACHE)
+                clear_cache(LETMEIN_CACHE)
             exit(0)
     except KeyboardInterrupt:
         error("user quit")

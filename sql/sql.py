@@ -91,7 +91,6 @@ class SQL(object):
 
     def show_single_password(self):
         sql_command = "SELECT info, data FROM {};".format(self.tablename)
-        print sql_command
         self.cursor.execute(sql_command)
         results = self.cursor.fetchall()
         for row in results:
