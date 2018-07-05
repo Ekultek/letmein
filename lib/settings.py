@@ -42,7 +42,7 @@ def sha256_rounds(raw, rounds=1500000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$
     return obj("sha256", raw, salt, rounds)
 
 
-def secure_delete(path, random_fill=True, null_fill=True, passes=3):
+def secure_delete(path, triple_fill=True, passes=3):
     """
     securely delete a file by passing it through both random and null filling
     """
@@ -50,16 +50,19 @@ def secure_delete(path, random_fill=True, null_fill=True, passes=3):
     for i, f in enumerate(files):
         files[i] = "{}/{}".format(path, f)
     for item in files:
-        with open(item, "wr") as data:
-            length = data.tell()
-            if random_fill:
-                for _ in xrange(passes):
-                    data.seek(0)
-                    data.write(os.urandom(length))
-            if null_fill:
-                for _ in xrange(passes):
-                    data.seek(0)
-                    data.write("\x00" * length)
+        length = os.path.getsize(item)
+        data = open(item, "w")
+        if triple_fill:
+            for _ in xrange(passes):
+                data.seek(0)
+                data.write(''.join(random.choice(string.printable) for _ in range(length)))
+            for _ in xrange(passes):
+                data.seek(0)
+                data.write(os.urandom(length))
+            for _ in xrange(passes):
+                data.seek(0)
+                data.write("\x00" * length)
+        data.close()
         os.remove(item)
 
 
