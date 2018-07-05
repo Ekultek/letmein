@@ -43,20 +43,20 @@ class SQL(object):
         except Exception:
             return None
 
-    def create_new_row(self):
+    def create_new_row(self, regex=None):
         sql_insert_command = "INSERT INTO {table} (info, data) VALUES ('{password_info}', '{password_data}');".format(
             table=self.tablename, password_info=self.information, password_data=self.enc_password
         )
+        available = self.display_by_regex(provided_regex=regex)
         try:
-            available = self.display_by_regex()
             for item in available:
                 if self.information.lower() == item[0].lower():
                     return "exists"
-            self.cursor.execute(sql_insert_command)
-            self.connection.commit()
-            return "ok"
-        except Exception as e:
-            return e
+        except TypeError:
+            pass
+        self.cursor.execute(sql_insert_command)
+        self.connection.commit()
+        return "ok"
 
     def update_existing_column(self):
         update_info_command = "UPDATE {} SET info = '{}' WHERE info = '{}';".format(
@@ -73,13 +73,23 @@ class SQL(object):
         except Exception as e:
             return e
 
-    def display_by_regex(self):
+    def display_by_regex(self, provided_regex=None):
+
+        if provided_regex is not None:
+            regex_to_use = provided_regex
+        else:
+            regex_to_use = self.regex
+
         def regexp(expr, item):
-            matcher = re.compile(expr)
-            return matcher.search(item) is not None
+            try:
+                matcher = re.compile(expr)
+                return matcher.search(item) is not None
+            except TypeError:
+                # little issue fixed
+                return False
 
         sql_command = "SELECT info, data FROM {} WHERE info REGEXP {};".format(
-            self.tablename, '"{}"'.format(self.regex)
+            self.tablename, '"{}"'.format(regex_to_use)
         )
         try:
             self.connection.create_function("REGEXP", 2, regexp)

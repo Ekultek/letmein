@@ -30,7 +30,7 @@ LOCK = RLock()
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.10({})"
+VERSION = "0.0.1.11({})"
 VERSION_STRING = "\033[31m\033[1m*beta\033[0m" if VERSION.count(".") == 3 else "\033[1m\033[36m~alpha\033[0m" if VERSION.count(".") == 2 else "\033[1m\033[32m+stable\033[0m"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
@@ -55,7 +55,9 @@ def sha256_rounds(raw, rounds=1500000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$
         obj = hashlib.pbkdf2_hmac
         return obj("sha256", raw, salt, rounds)
     else:
-        return LETMEIN_CACHE.values()[-1]
+        current_data_cache = LETMEIN_CACHE.values()[-1]
+        clear_cache(LETMEIN_CACHE)
+        return current_data_cache
 
 
 def secure_delete(path, triple_fill=True, passes=3):

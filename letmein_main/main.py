@@ -70,7 +70,6 @@ def main():
                         print("INFO: {}\tSTORED PASSWORD: {}\n\n{}".format(
                             results[0], AESCipher(stored_key).decrypt(results[1]), "-" * 30
                         ))
-                clear_cache(LETMEIN_CACHE)
             if opt.storeProvidedPassword:
                 if opt.passwordInformation is not None:
                     password_information = opt.passwordInformation
@@ -85,7 +84,7 @@ def main():
 
                 status = SQL(
                     connection=conn, cursor=cursor, information=password_information,
-                    enc_password=encrypted_password
+                    enc_password=encrypted_password, regex=password_information
                 ).create_new_row()
                 if status == "ok":
                     info("password stored successfully")
@@ -96,7 +95,6 @@ def main():
                     )
                 else:
                     fatal("unable to add row to database, received an error: {}".format(status))
-                clear_cache(LETMEIN_CACHE)
             if opt.regexToSearch is not None:
                 data = SQL(regex=opt.regexToSearch, connection=conn, cursor=cursor).display_by_regex()
                 if len(data) == 0:
@@ -106,7 +104,6 @@ def main():
                     display_formatted_list_output(
                         data, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
                     )
-                clear_cache(LETMEIN_CACHE)
             if opt.updateExistingPassword is not None:
                 apparent_possible_passwords = SQL(
                     regex=opt.updateExistingPassword, connection=conn, cursor=cursor
@@ -130,24 +127,23 @@ def main():
                             info("password updated successfully")
                         else:
                             fatal("issue updating password: {}".format(result))
-                clear_cache(LETMEIN_CACHE)
             if opt.batchStore:
-                results = []
+                stored_items = []
                 to_store = create_data_tuples(stored_key)
                 for item in to_store:
                     res = SQL(
-                        connection=conn, cursor=cursor, regex=item[0], information=item[0], enc_password=item[1]
-                    ).create_new_row()
-                    results.append(res)
-                amount = len([r for r in results if r == "ok"])
-                info("stored {} encrypted password(s) ({} already in database)".format(
-                    amount, len(to_store) - amount if amount != 0 else 0
+                        connection=conn, cursor=cursor, information=item[0], enc_password=item[1]
+                    ).create_new_row(regex=item[0])
+                    stored_items.append(res)
+                amount_stored = len([r for r in stored_items if r == "ok"])
+                amount_not_stored = len([r for r in stored_items if r == "exists"])
+                info("{} password(s) stored in database ({} already existed in database)".format(
+                    amount_stored, amount_not_stored
                 ))
-                clear_cache(LETMEIN_CACHE)
             if opt.cleanHomeFolder:
                 secure_delete(MAIN_DIR)
                 info("all data has been deleted")
-                clear_cache(LETMEIN_CACHE)
+            clear_cache(LETMEIN_CACHE)
             exit(0)
     except KeyboardInterrupt:
         error("user quit")
