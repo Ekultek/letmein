@@ -132,25 +132,21 @@ def compare(stored):
          * checking the system size of the strings
          * checking if the random nth end characters of the strings match
         """
-
-        retval = []
         random_int_check = random.choice(range(len(provided)))
 
         if not len(stored) == len(provided):
-            retval.append("no")
+            return False
 
         for char in zip(list(provided), list(stored)):
             if char[0] != char[1]:
-                retval.append("no")
+                return False
 
         if sys.getsizeof(provided) != sys.getsizeof(stored):
-            retval.append("no")
+            return False
 
         if provided[-random_int_check] != stored[-random_int_check]:
-            retval.append("no")
-
-        if "no" in retval:
             return False
+
         return True
 
     tries = 3
