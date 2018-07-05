@@ -1,5 +1,6 @@
 import os
 import sys
+import struct
 import base64
 import string
 import random
@@ -53,15 +54,18 @@ def secure_delete(path, triple_fill=True, passes=3):
         length = os.path.getsize(item)
         data = open(item, "w")
         if triple_fill:
+            # fill with random printable characters
             for _ in xrange(passes):
                 data.seek(0)
                 data.write(''.join(random.choice(string.printable) for _ in range(length)))
+            # fill with random data from the OS
             for _ in xrange(passes):
                 data.seek(0)
                 data.write(os.urandom(length))
+            # fill with null bytes
             for _ in xrange(passes):
                 data.seek(0)
-                data.write("\x00" * length)
+                data.write(struct.pack("B", 0) * length)
         data.close()
         os.remove(item)
 
