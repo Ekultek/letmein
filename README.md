@@ -4,7 +4,7 @@ This password manager is a work in progress, it is not as secure as it could be 
 
 # letmein
 
-Letmein is a lightweight password manager that uses `AES-256` encryption to encrypt passwords and store them into a SQLite database file. The encryption is done via a pseudo random master key generated from a master password who's hash value is stored using two million rounds of Pythons implementation of `PBKDF2-HMAC-SHA-256`. I am so confident with the password encryption that below is my Github password ciphered using the programs `AES-256` implementation;
+Letmein is a lightweight password manager that uses `AES-256` encryption to encrypt passwords and store them into a SQLite database file. The encryption is done via a pseudo random master key generated from a master password who's hash value is stored using 1.5 million rounds of Pythons implementation of `PBKDF2-HMAC-SHA-256`. I am so confident with the password encryption that below is my Github password ciphered using the programs `AES-256` implementation;
 
 ```bash
 Hc24aS3k9WJ6x53UZzm88b0JdAHjNWcY5Q1Lr0XjgAQ=
