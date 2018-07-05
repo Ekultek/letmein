@@ -1,3 +1,4 @@
+from sql.sql import SQL
 from lib.cmd import LetMeInParser
 from encryption.aes_encryption import AESCipher
 from lib.output import (
@@ -17,19 +18,19 @@ from lib.settings import (
     display_formatted_list_output,
     create_data_tuples
 )
-from sql.sql import (
-    create_connection,
-    select_all_data,
-    create_new_row,
-    display_by_regex,
-    update_existing_column,
-    show_single_password
-)
 
 
 def main():
 
     try:
+        opt = LetMeInParser().optparse()
+
+        if opt.showVersionNumber:
+            from lib.settings import VERSION_STRING, VERSION
+
+            print(VERSION.format(VERSION_STRING))
+            exit(0)
+
         print(BANNER)
 
         info("initializing")
@@ -40,12 +41,11 @@ def main():
             warning("ALL DATA HAS BEEN REMOVED")
         else:
             stored_key, _ = store_key(MAIN_DIR, grab_key=True)
-            opt = LetMeInParser().optparse()
             info("password accepted!")
-            conn, cursor = create_connection(DATABASE_FILE)
+            conn, cursor = SQL(db_file=DATABASE_FILE).create_connection()
 
             if opt.showAllStoredPasswords:
-                password_data = select_all_data(cursor, "encrypted_data")
+                password_data = SQL(cursor=cursor).select_all_data()
                 if password_data is not None:
                     info("gathered {} password(s) total".format(len(password_data)))
                     info("decrypting stored information")
@@ -55,14 +55,19 @@ def main():
                 else:
                     fatal("received no password data from the database, is there anything in there?")
             elif opt.showOnlyThisPassword is not None:
-                results = show_single_password(opt.showOnlyThisPassword, cursor)
+                results = SQL(information=opt.showOnlyThisPassword, cursor=cursor).show_single_password()
                 if len(results) == 0:
                     warning("no information could be found with the provided string, you should check all first")
                 else:
                     info("found what you are looking for")
-                    display_formatted_list_output(
-                        results, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
-                    )
+                    try:
+                        display_formatted_list_output(
+                            results, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
+                        )
+                    except TypeError:
+                        print("INFO: {}\tSTORED PASSWORD: {}\n\n{}".format(
+                            results[0], AESCipher(stored_key).decrypt(results[1]), "-" * 30
+                        ))
             elif opt.storeProvidedPassword:
                 if opt.passwordInformation is not None:
                     password_information = opt.passwordInformation
@@ -75,7 +80,10 @@ def main():
                     password = prompt("enter the password to store: ", hide=True)
                     encrypted_password = AESCipher(stored_key).encrypt(password)
 
-                status = create_new_row(conn, cursor, password_information, encrypted_password)
+                status = SQL(
+                    connection=conn, cursor=cursor, information=password_information,
+                    enc_password=encrypted_password
+                ).create_new_row()
                 if status == "ok":
                     info("password stored successfully")
                 elif status == "exists":
@@ -86,7 +94,7 @@ def main():
                 else:
                     fatal("unable to add row to database, received an error: {}".format(status))
             elif opt.regexToSearch is not None:
-                data = display_by_regex(opt.regexToSearch, conn, cursor)
+                data = SQL(regex=opt.regexToSearch, connection=conn, cursor=cursor).display_by_regex()
                 if len(data) == 0:
                     error("no items matched your search")
                 else:
@@ -95,9 +103,11 @@ def main():
                         data, stored_key, prompting=opt.doNotPrompt, answer=opt.promptAnswer
                     )
             elif opt.updateExistingPassword is not None:
-                apparent_possible_passwords = display_by_regex(opt.updateExistingPassword, conn, cursor)
+                apparent_possible_passwords = SQL(
+                    regex=opt.updateExistingPassword, connection=conn, cursor=cursor
+                ).display_by_regex()
                 if len(apparent_possible_passwords) == 0:
-                    warning("no apparent existing passwords found with given string")
+                    fatal("no apparent existing passwords found with given string")
                 else:
                     info("{} possible passwords found to edit".format(len(apparent_possible_passwords)))
                     for i, item in enumerate(apparent_possible_passwords):
@@ -106,10 +116,11 @@ def main():
                     if int(choice) in range(len(apparent_possible_passwords)):
                         information = prompt("enter the new information for the update: ")
                         password = prompt("enter the new password to update: ", hide=True)
-                        result = update_existing_column(
-                            conn, cursor, (information, AESCipher(stored_key).encrypt(password)),
-                            apparent_possible_passwords[int(choice)]
-                        )
+                        result = SQL(
+                            connection=conn, cursor=cursor,
+                            to_update=(information, AESCipher(stored_key).encrypt(password)),
+                            information=apparent_possible_passwords[int(choice)]
+                        ).update_existing_column()
                         if result == "ok":
                             info("password updated successfully")
                         else:
@@ -118,7 +129,9 @@ def main():
                 to_store = create_data_tuples(stored_key)
                 info("storing {} encrypted password(s)".format(len(to_store)))
                 for item in to_store:
-                    create_new_row(conn, cursor, item[0], item[1])
+                    SQL(
+                        connection=conn, cursor=cursor, regex=item[0], information=item[0], enc_password=item[1]
+                    ).create_new_row()
                 info("information stored")
             elif opt.cleanHomeFolder:
                 secure_delete(MAIN_DIR)
