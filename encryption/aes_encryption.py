@@ -33,6 +33,8 @@ class AESCipher(object):
         return self.unpad(cipher.decrypt(enc[16:]))
 
     def generate_key(self, raw):
+        import os
+
         contingent_length = random.choice(range(100, 500))
         acceptable_padding = list(string.printable)
         length = len(raw)
@@ -42,7 +44,7 @@ class AESCipher(object):
             while half != contingent_length:
                 new_raw += random.choice(acceptable_padding)
                 half = len(new_raw) / 2
-        salt = Random.get_random_bytes(78)
+        salt = os.urandom(78)
         new_raw = "$letmein${}${}".format(new_raw, salt)
         with open("{}/.key".format(lib.settings.MAIN_DIR), "a+") as keyfob:
             key = self.encrypt(new_raw)
