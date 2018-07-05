@@ -36,7 +36,7 @@ Version: v{}\033[0m
 
 def sha256_rounds(raw, rounds=1500000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
     """
-    encrypt a string using 2 million rounds of PBKDF2-HMAC-SHA-256
+    encrypt a string using 1.5 million rounds of PBKDF2-HMAC-SHA-256
     """
     obj = hashlib.pbkdf2_hmac
     return obj("sha256", raw, salt, rounds)
