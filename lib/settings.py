@@ -25,7 +25,7 @@ try:
 except:
     xrange = range
 
-LETMEIN_CACHE = TTLCache(maxsize=250, ttl=600)
+LETMEIN_CACHE = TTLCache(maxsize=250, ttl=50)
 LOCK = RLock()
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
