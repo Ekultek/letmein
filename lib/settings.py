@@ -1,4 +1,5 @@
 import os
+import sys
 import base64
 import string
 import random
@@ -20,8 +21,8 @@ except:
 HOME = os.path.expanduser("~")
 MAIN_DIR = "{}/.letmein".format(HOME)
 DATABASE_FILE = "{}/letmein.db".format(MAIN_DIR)
-VERSION = "0.0.1.7({})"
-VERSION_STRING = "\033[35mbeta\033[0m" if VERSION.count(".") == 3 else "\033[36malpha\033[0m" if VERSION.count(".") == 2 else "\033[32mstable\033[0m"
+VERSION = "0.0.1.8({})"
+VERSION_STRING = "\033[31m\033[1m*beta\033[0m" if VERSION.count(".") == 3 else "\033[1m\033[36m~alpha\033[0m" if VERSION.count(".") == 2 else "\033[1m\033[32m+stable\033[0m"
 INIT_FILE = "{}/.init".format(MAIN_DIR)
 BANNER = """\n\033[32m
    __      _                _____\033[0m\033[32m      
@@ -33,7 +34,7 @@ Version: v{}\033[0m
 \n""".format(VERSION.format(VERSION_STRING))
 
 
-def sha256_rounds(raw, rounds=2000000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
+def sha256_rounds(raw, rounds=1500000, salt="vCui3d8,?j;%Rm#'zPs'Is53U:43DS%8rs$_FBsrLD_nQ"):
     """
     encrypt a string using 2 million rounds of PBKDF2-HMAC-SHA-256
     """
@@ -118,6 +119,37 @@ def compare(stored):
     """
     compare the provided key hash with the stored key hash
     """
+
+    def complex_verification(provided, stored):
+        """
+        a complex comparison of two different strings
+        compares the following:
+         * checking the length of the strings match
+         * checking if each character in the strings matches
+         * checking the system size of the strings
+         * checking if the random nth end characters of the strings match
+        """
+
+        retval = []
+        random_int_check = random.choice(range(len(provided)))
+
+        if not len(stored) == len(provided):
+            retval.append("no")
+
+        for char in zip(list(provided), list(stored)):
+            if char[0] != char[1]:
+                retval.append("no")
+
+        if sys.getsizeof(provided) != sys.getsizeof(stored):
+            retval.append("no")
+
+        if provided[-random_int_check] != stored[-random_int_check]:
+            retval.append("no")
+
+        if "no" in retval:
+            return False
+        return True
+
     tries = 3
 
     while True:
@@ -127,6 +159,8 @@ def compare(stored):
         stored_key = base64.urlsafe_b64decode(stored)
         provided_key = sha256_rounds(provided_key)
         if stored_key == provided_key:
+            if not complex_verification(provided_key, stored_key):
+                return False
             return True
         else:
             tries -= 1
@@ -152,14 +186,14 @@ def display_formatted_list_output(data, key, prompting=True, answer="n"):
 
     if choice.lower().startswith("y"):
         warning("all output is displayed in plaintext")
-        print(separator)
+        print(separator + "\n")
         for row in data:
             print("INFO: {}\nSTORED PASSWORD: {}\n".format(
                 row[0], encryption.aes_encryption.AESCipher(key).decrypt(row[1])
             ))
         print(separator)
     else:
-        print(separator)
+        print(separator + "\n")
         for row in data:
             print(
                 "INFO: {}\nSTORED PASSWORD: {}\n".format(
